@@ -25,7 +25,8 @@ class FeatureExtractor:
         for token in self.tokens:
             self.synset_dict = {**self.synset_dict, token : wordnet.synsets(token)}
 
-        self.labels = dict()
-        for ent in nlp(self.sentence).ents:
+        self.entity_labels = dict()
+        doc = nlp(self.sentence)
+        for ent in doc.ents:
             print("Entity: ", ent)
-            self.labels = {**self.labels, ent.text : ent.label_}
+            self.entity_labels = {**self.entity_labels, ent.text : ent.label_}
