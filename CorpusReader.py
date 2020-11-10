@@ -6,7 +6,6 @@ corpusReader.read('train.txt')
 
 training_data = corpusReader.get_data()
 tags = corpusReader.get_tags()
-mapping = corpusReader.get_entity_relationship()
 
 """
 
