@@ -1,5 +1,6 @@
 from FeatureExtractor import *
 from CorpusReader import *
+from FeatureExtractor import *
 
 
 # This is a sample Python script.
@@ -28,4 +29,14 @@ if __name__ == '__main__':
 
 
     self.synset_list = {**self.senset_list , token:wordnet.synsets(token) for token in self.tokens}
+
+    featureExtractor = FeatureExtractor(corpusReader.data[0][0])
+
+    print(featureExtractor.tokens)
+
+    print(featureExtractor.lemmas)
+
+    print(featureExtractor.pos_tags)
+
+    print(featureExtractor.synset_dict)
 
