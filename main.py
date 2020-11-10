@@ -19,7 +19,7 @@ if __name__ == '__main__':
     corpusReader.read('train.txt')
     corpusReader.get_data()
 
-    line = 1000
+    line = 18
 
     print(corpusReader.data[line])
 
@@ -33,4 +33,4 @@ if __name__ == '__main__':
 
     print(featureExtractor.synset_dict)
 
-    print(featureExtractor.entity_labels)
+    print("Entity labels: ", featureExtractor.entity_labels)

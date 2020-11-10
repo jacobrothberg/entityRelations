@@ -28,5 +28,4 @@ class FeatureExtractor:
         self.entity_labels = dict()
         doc = nlp(self.sentence)
         for ent in doc.ents:
-            print("Entity: ", ent)
             self.entity_labels = {**self.entity_labels, ent.text : ent.label_}
