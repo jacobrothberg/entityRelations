@@ -148,11 +148,7 @@ class CorpusReader:
                 if lines != '\n':
                     line = lines.split("\t")
                     if len(line) >= 2:
-                        sentence = line[1].split('"')[1]
-                        (ce, self.tags) = self.capture_entities(sentence)
-                        self.entities.append(ce)
-                        for tag in self.tags:
-                            self.entityList[tag].append(ce[tag])
+                        self.read_sentence(line)
                     else:
                         label = line[0].split("\n")
                         cr = self.capture_relations(label[0], self.tags)
@@ -164,7 +160,14 @@ class CorpusReader:
                                                               self.tags, len(self.entities))
     
         return True
-    
+
+    def read_sentence(self, line):
+        sentence = line[1].split('"')[1]
+        (ce, self.tags) = self.capture_entities(sentence)
+        self.entities.append(ce)
+        for tag in self.tags:
+            self.entityList[tag].append(ce[tag])
+
     def get_data(self):
         
         for i in range(len(self.text)):

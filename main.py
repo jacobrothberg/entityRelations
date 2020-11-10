@@ -19,6 +19,3 @@ if __name__ == '__main__':
     corpusReader.get_data()
 
     print(corpusReader.data[0])
-
-
-
