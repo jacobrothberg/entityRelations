@@ -18,5 +18,7 @@ if __name__ == '__main__':
     corpusReader.read('train.txt')
     corpusReader.get_data()
 
+    print(corpusReader.data[0])
+
 
 
