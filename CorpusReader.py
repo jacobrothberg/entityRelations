@@ -173,12 +173,3 @@ class CorpusReader:
                               self.relations[i]['edge']))
 
         return self.data
-
-def read_sentence(line):
-
-    results = re.findall(r'<(\w+)>(.*)</\1>', line)
-    sentence = re.sub(r'<\w+>', "", line)
-    new_sent = re.sub(r'</\w+>', "", sentence)
-    entities = [x[1] for x in results]
-
-    return (new_sent.strip(),tuple(entities))

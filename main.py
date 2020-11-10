@@ -1,4 +1,3 @@
-from FeatureExtractor import *
 from CorpusReader import *
 from FeatureExtractor import *
 
@@ -21,14 +20,6 @@ if __name__ == '__main__':
     corpusReader.get_data()
 
     print(corpusReader.data[0])
-    print(read_sentence("Hi my <e1>name </e1> is <e2> Poorna </e2>."))
-
-    featureExtractor = FeatureExtractor()
-    #print(corpusReader.data[0][0],corpusReader.data[0][1][0],corpusReader.data[0][1][1])
-    featureExtractor.shortest_path_tree(corpusReader.data[0][0],'Thom','Radiohead')
-
-
-    self.synset_list = {**self.senset_list , token:wordnet.synsets(token) for token in self.tokens}
 
     featureExtractor = FeatureExtractor(corpusReader.data[0][0])
 
