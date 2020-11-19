@@ -1,7 +1,4 @@
 {('org', 'alternate_names'),		org: org
-
- ('org', 'founded'), 	org: cardinal
- ('org', 'founded_by'), probabilistic model
  ('org', 'members'),
 
  ('org', 'subsidiaries'),
@@ -17,14 +14,23 @@
  
  
  
-  ('org', 'city_of_headquarters'),
+
+
+#######################################################
+Kinda figured out
+######################################################
+
+ ('org', 'founded'), 	org: cardinal # one entity is an org and the other is usually a date or year
+
+ ('org', 'founded_by')  org:org org:per per:org
+
+   ('org', 'city_of_headquarters'),
  ('org', 'country_of_headquarters'),
   ('org', 'stateorprovince_of_headquarters'),
     ('per', 'origin'), -- ner tags : per NORP
-  
-  
+
+
   ('per', 'cities_of_residence'),
  ('per', 'countries_of_residence'),
  ('per', 'country_of_birth'),
  ('per', 'stateorprovinces_of_residence'),
-
