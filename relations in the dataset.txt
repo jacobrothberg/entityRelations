@@ -1,0 +1,30 @@
+{('org', 'alternate_names'),		org: org
+
+ ('org', 'founded'), 	org: cardinal
+ ('org', 'founded_by'), probabilistic model
+ ('org', 'members'),
+
+ ('org', 'subsidiaries'),
+ ('org', 'top_members/employees'),
+ ('per', 'alternate_names'),
+ 
+ ('per', 'employee_of'),
+
+ ('per', 'spouse'), probabilistic model
+ 
+ ('per', 'title'),
+ 'no_relation'}
+ 
+ 
+ 
+  ('org', 'city_of_headquarters'),
+ ('org', 'country_of_headquarters'),
+  ('org', 'stateorprovince_of_headquarters'),
+    ('per', 'origin'), -- ner tags : per NORP
+  
+  
+  ('per', 'cities_of_residence'),
+ ('per', 'countries_of_residence'),
+ ('per', 'country_of_birth'),
+ ('per', 'stateorprovinces_of_residence'),
+
