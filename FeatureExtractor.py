@@ -67,3 +67,6 @@ class FeatureExtractor:
                     self.entity_labels = {**self.entity_labels, ent.text : ent.label_}
             else:
                 self.entity_labels = {**self.entity_labels, ent.text: ent.label_}
+
+        for chunk in doc.noun_chunks:
+            self.parse_tree = (chunk.text,chunk.root.text, chunk.root.dep_, chunk.root.head.text)
