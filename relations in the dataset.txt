@@ -9,7 +9,7 @@
 
  ('per', 'spouse'), probabilistic model
  
- ('per', 'title'),
+
  'no_relation'}
  
  
@@ -34,3 +34,5 @@ Kinda figured out
  ('per', 'countries_of_residence'),
  ('per', 'country_of_birth'),
  ('per', 'stateorprovinces_of_residence'),
+
+ ('per', 'title'), -- have to create a custom ner tag as occupation

@@ -1,5 +1,6 @@
 from CorpusReader import *
 from FeatureExtractor import *
+import pandas as pd
 
 
 # This is a sample Python script.
@@ -17,9 +18,10 @@ def print_hi(name):
 if __name__ == '__main__':
     corpusReader = CorpusReader()
     corpusReader.read('train.txt')
-    corpusReader.get_data()
+    data = corpusReader.get_data()
 
-    line = 580
+    """
+    line = 16016
 
     print(corpusReader.data[line])
 
@@ -34,3 +36,22 @@ if __name__ == '__main__':
     print(featureExtractor.synset_dict)
 
     print("Entity labels: ", featureExtractor.entity_labels)
+
+    """
+
+    #print(len(data))
+
+    #tokens = []
+    #pos_tag = []
+    # entity_labels = {}
+    features = []
+    for i in range(len(data)):
+        featureExtractor = FeatureExtractor(data[i][0])
+        #tokens.append((featureExtractor.tokens))
+        #pos_tag.append((featureExtractor.pos_tags))
+        #entity_labels
+        features.append((featureExtractor.tokens,featureExtractor.pos_tags,featureExtractor.entity_labels,featureExtractor.noun_chunks))
+
+    features = pd.DataFrame(data = features, columns = ["tokens","pos_tags","entity_labels","noun chunks"])
+    features.to_csv("features.csv", header = True)
+
