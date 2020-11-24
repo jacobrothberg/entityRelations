@@ -28,16 +28,18 @@ if __name__ == '__main__':
     pos_tags = []
     entity_labels = []
     dependency_parse = []
-
+    sentence = []
     for i in range(len(df)):
         featureExtractor = FeatureExtractor(df.iloc[i]['text'])
+        sentence.append(featureExtractor.sentence)
         tokens.append(featureExtractor.tokens)
         lemmas.append(featureExtractor.lemmas)
         pos_tags.append(featureExtractor.pos_tags)
         entity_labels.append(featureExtractor.entity_labels)
         dependency_parse.append(featureExtractor.parse_tree)
 
-    processed_data = pd.DataFrame({'tokens': tokens, 'lemmas': lemmas,
+    processed_data = pd.DataFrame({'text': sentence,'tokens': tokens, 'lemmas': lemmas,
                                    'pos_tags': pos_tags, 'ner_tags': entity_labels, 'parse_tree': dependency_parse})
-    # print(processed_data)
-    processed_data.to_csv("task2.csv")
+
+    df = df.merge(processed_data)
+    df.to_csv("task2.csv")
