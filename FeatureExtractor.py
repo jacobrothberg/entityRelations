@@ -2,7 +2,7 @@
 import spacy
 from nltk import pos_tag
 from nltk import word_tokenize
-from nltk.corpus import wordnet
+from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 import geonamescache
 nlp = spacy.load("en_core_web_sm")
@@ -37,9 +37,11 @@ states_list = [*extract_gpe_type(states, 'name')]
 
 class FeatureExtractor:
 
-    def __init__(self, sentence):
+    def __init__(self, sentence, entities):
 
         self.sentence = sentence
+
+        self.entities = entities
 
         self.tokens = word_tokenize(self.sentence)
 
@@ -51,7 +53,7 @@ class FeatureExtractor:
 
         self.synset_dict = dict()
         for token in self.tokens:
-            self.synset_dict = {**self.synset_dict, token : wordnet.synsets(token)}
+            self.synset_dict = {**self.synset_dict, token : wn.synsets(token)}
 
         self.entity_labels = dict()
         doc = nlp(self.sentence)
@@ -69,4 +71,28 @@ class FeatureExtractor:
                 self.entity_labels = {**self.entity_labels, ent.text: ent.label_}
 
         for chunk in doc.noun_chunks:
-            self.parse_tree = (chunk.text,chunk.root.text, chunk.root.dep_, chunk.root.head.text)
+            self.parse_tree = (chunk.text, chunk.root.text, chunk.root.dep_, chunk.root.head.text)
+
+        self.both_synsets = {}
+
+        for entity in self.entities:
+            synsets = wn.synsets(entity)
+            list_hypernyms = []
+            list_hyponyms = []
+            list_meronyms = []
+            list_holonyms = []
+
+            for synset in synsets:
+                for hypernym in synset.hypernyms():
+                    for name in hypernym.lemma_names():
+                        list_hypernyms.append(name)
+                for hyponym in synset.hyponyms():
+                    for name in hyponym.lemma_names():
+                        list_hyponyms.append(name)
+                for meronym in synset.member_meronyms():
+                    for name in meronym.lemma_names():
+                        list_meronyms.append(name)
+                for holonym in synset.member_holonyms():
+                    for name in holonym.lemma_names():
+                        list_holonyms.append(name)
+            self.both_synsets[entity] = {'hypernyms': list_hypernyms, 'hyponyms': list_hyponyms, 'meronyms': list_meronyms, 'holonyms': list_holonyms}

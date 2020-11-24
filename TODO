@@ -3,3 +3,5 @@ Identify labels from noun chunks.
 Add the list of professions in custom SpaCy tag.
 
 Investigate dependency-parse based features. Reference: https://github.com/thtang/NLP2018SPRING/tree/master/project2
+
+https://www.nltk.org/api/nltk.corpus.reader.html#module-nltk.corpus.reader.wordnet
