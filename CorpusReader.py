@@ -2,7 +2,7 @@
 Usage :
 from CorpusReader import *
 corpusReader = CorpusReader()
-corpusReader.read('train.txt')
+corpusReader.read('semeval_train.txt')
 
 training_data = corpusReader.get_data()
 tags = corpusReader.get_tags()
@@ -22,62 +22,20 @@ class CorpusReader:
         Initialize variable to hold processed data
         """
         # stores the list of e1 and e2 separately
-        self.entityList = ModifiedDictionary()
+        self.entity1 = list()
         
         # stores the list of entity type separately
-        self.entityTypeList = ModifiedDictionary()
+        self.entity2 = list()
         
         # stores a list of dictionaries which captures the entities, types and the relation(directionality)
-        self.entity_relationships = list()
+        self.relationships = list()
         
         # stores the extracted text data (X)
-        self.text = list()
+        self.text_data = list()
         
-        # stores the entity type and relation(directionality) (Y)
-        self.labels = set()
-        
-        # stores the unique tags present in the corpus
-        self.tags = list()
-        
-        # stores e1 and e2 for each sentence in the corpus
-        self.entities = list()
-        
-        # stores entity tags, entity type and relation(directionality)
-        self.relations = list()
-        
-        self.data = list()
-        
-    def get_entity_list(self):
+        # stores the direction of edges
+        self.edge = list()
 
-        return self.entityList
-    
-    def get_entity_type_list(self):
-        
-        return self.entityTypeList
-    
-    def get_entity_relationship(self):
-        
-        return self.entity_relationships
-
-    def get_unique_relations(self):
-        
-        return self.labels
-    
-    def get_tags(self):
-        
-        return self.tags
-    
-    def get_entities(self):
-        
-        return self.entities
-    
-    def get_relations(self):
-        
-        return self.relations    
-    
-    def get_text(self):
-        
-        return self.text
         
     def capture_entities(self, sentence):
         """
