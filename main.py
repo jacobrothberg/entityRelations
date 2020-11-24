@@ -16,31 +16,5 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    """
-    corpusReader = CorpusReader()
-    corpusReader.read('semeval_train.txt')
-    data = corpusReader.get_data()
-
-    
-    line = 16016
-
-    print(corpusReader.data[line])
-
-    featureExtractor = FeatureExtractor(corpusReader.data[line][0])
-
-    print(featureExtractor.tokens)
-
-    print(featureExtractor.lemmas)
-
-    print(featureExtractor.pos_tags)
-
-    print(featureExtractor.synset_dict)
-
-    print("Entity labels: ", featureExtractor.entity_labels)
-
-    """
-
     CR = CorpusReader()
     df = CR.read('semeval_train.txt')
-    print(df)
-
