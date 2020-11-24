@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/entityRelations.iml" filepath="$PROJECT_DIR$/.idea/entityRelations.iml" />
+      <module fileurl="file://$USER_HOME$/fall20/NLP/Project/NLP2018SPRING/project2/.idea/project2.iml" filepath="$USER_HOME$/fall20/NLP/Project/NLP2018SPRING/project2/.idea/project2.iml" />
     </modules>
   </component>
 </project>

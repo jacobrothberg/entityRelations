@@ -17,7 +17,7 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     corpusReader = CorpusReader()
-    corpusReader.read('train.txt')
+    corpusReader.read('semeval_train.txt')
     data = corpusReader.get_data()
 
     """
