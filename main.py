@@ -18,3 +18,24 @@ def print_hi(name):
 if __name__ == '__main__':
     CR = CorpusReader()
     df = CR.read('semeval_train.txt')
+
+    """          processed_data = pd.DataFrame({'tokens': self.tokens, 'lemmas': self.lemmas,
+                                       'pos_tags': self.pos_tags, 'ner_tags': self.entity_labels})
+    """
+
+    tokens = []
+    lemmas = []
+    pos_tags = []
+    entity_labels = []
+
+    for i in range(len(df)):
+        featureExtractor = FeatureExtractor(df.iloc[i]['text'])
+        tokens.append(featureExtractor.tokens)
+        lemmas.append(featureExtractor.lemmas)
+        pos_tags.append(featureExtractor.pos_tags)
+        entity_labels.append(featureExtractor.entity_labels)
+
+    processed_data = pd.DataFrame({'tokens': tokens, 'lemmas': lemmas,
+                                   'pos_tags': pos_tags, 'ner_tags': entity_labels})
+
+    processed_data.to_csv("task2.csv")

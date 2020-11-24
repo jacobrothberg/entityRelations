@@ -67,11 +67,3 @@ class FeatureExtractor:
                     self.entity_labels = {**self.entity_labels, ent.text : ent.label_}
             else:
                 self.entity_labels = {**self.entity_labels, ent.text: ent.label_}
-
-
-        self.noun_chunks = list()
-
-        for chunk in doc.noun_chunks:
-            self.noun_chunks.append((chunk.text,chunk.root.dep_))
-
-
