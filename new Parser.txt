@@ -1,0 +1,58 @@
+labels = list()
+sentences = list()
+
+
+with open('Train.txt','r') as file:
+    file.seek(0)
+    for lines in file.readlines():
+        if lines == '\n':
+            pass
+        elif lines == 'no_relation\n':
+            labels.append(lines)
+        elif re.fullmatch(r'\w+(\W*\w+)?:\w+(\W*\w+)?\(\w+,\w+\)\s?',lines):
+            labels.append(lines)
+        elif re.search(r'".*"',lines) is not None:
+            if re.search(r'<e[12]>|</e[12]>',lines) is not None:
+                sentence = lines.split("\t")[1]
+                sentences.append(sentence)
+            else:
+                print(lines)
+        else:
+            print(lines)
+
+
+
+def extract_relations(labels):
+    
+    entities = list()
+    edge = list()
+    for label in labels:
+        label = label.split("\n")[0]
+        entity_labels = label.split("(")[0]
+        entities.append(entity_labels.split(":"))
+        if label == 'Other':
+            edge.append("NA")
+        else:
+            edge.append(label[label.index("("):])
+    return entities,edge
+	
+	
+def extract_text(sentences):
+    
+    entities = list()
+    text = list()
+    for sentence in sentences:
+        results = re.findall(r'<(\w+)>(.*)</\1>',sentence)
+        sentence = re.sub(r'<\w+>',"",sentence)
+        sentence = re.sub(r'</\w+>',"",sentence)
+        sentence = re.sub(r'"',"",sentence)
+        sentence = re.sub(r'\n',"",sentence)
+        text.append(sentence)
+        r = list()
+        for res in results:
+            r.append((res[1].strip()))
+        entities.append(r)
+        
+    return text,entities   
+	
+	
