@@ -16,11 +16,12 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    """
     corpusReader = CorpusReader()
     corpusReader.read('train.txt')
     data = corpusReader.get_data()
 
-    """
+    
     line = 16016
 
     print(corpusReader.data[line])
@@ -39,19 +40,7 @@ if __name__ == '__main__':
 
     """
 
-    #print(len(data))
-
-    #tokens = []
-    #pos_tag = []
-    # entity_labels = {}
-    features = []
-    for i in range(len(data)):
-        featureExtractor = FeatureExtractor(data[i][0])
-        #tokens.append((featureExtractor.tokens))
-        #pos_tag.append((featureExtractor.pos_tags))
-        #entity_labels
-        features.append((featureExtractor.tokens,featureExtractor.pos_tags,featureExtractor.entity_labels,featureExtractor.noun_chunks))
-
-    features = pd.DataFrame(data = features, columns = ["tokens","pos_tags","entity_labels","noun chunks"])
-    features.to_csv("features.csv", header = True)
+    CR = CorpusReader()
+    df = CR.read('semeval_train.txt')
+    print(df)
 

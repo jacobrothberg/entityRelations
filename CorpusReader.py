@@ -11,6 +11,7 @@ mapping = corpusReader.get_entity_relationship()
 """
 
 import re
+import pandas as pd
 from ModifiedDictionary import ModifiedDictionary
 
 
@@ -22,11 +23,8 @@ class CorpusReader:
         Initialize variable to hold processed data
         """
         # stores the list of e1 and e2 separately
-        self.entity1 = list()
-        
-        # stores the list of entity type separately
-        self.entity2 = list()
-        
+        self.entities = list()
+
         # stores a list of dictionaries which captures the entities, types and the relation(directionality)
         self.relationships = list()
         
@@ -36,101 +34,64 @@ class CorpusReader:
         # stores the direction of edges
         self.edge = list()
 
-        
-    def capture_entities(self, sentence):
-        """
-        returns annotated entities from the corpus
-        """
-        
-        tag = list()
-        entity = dict()
-        results = re.findall(r'<(\w+)>(.*)</\1>', sentence)
-        new_sentence = re.sub(r'<\w+>', "", sentence)
-        new_sentence = re.sub(r'</\w+>', "", new_sentence)
-        self.text.append(new_sentence.strip())
-        for captures in results:
-            entity = {**entity, captures[0]: captures[1].strip()}
-            if captures[0] not in tag:
-                tag.append(captures[0])
-                
-        return entity, tuple(tag)
-    
-    def capture_relations(self, label, tags):
-        """
-        returns entity type and relation from the corpus
-        """
-        
-        relation = dict()
-        
-        if label == 'no_relation':
-            self.labels.add(label)
-            for t in tags:
-                relation = {**relation, t: 'NA'}
-            relation = {**relation, 'edge': 'NA'}
-        else:
-            relation_type = label.split("(")[0].split(":")
-            edge = re.findall(r'\((\w+),(\w+)\)', label)[0]
-            self.labels.add((tuple(relation_type)))
-            for t in tags:
-                relation = {**relation, t: relation_type[edge.index(t)]}
-            relation = {**relation, 'edge': edge}
-        
-        return relation
+        self.parsed_data = pd.DataFrame()
 
-    @staticmethod
-    def map_entity_relations(ce, cr, tag, n):
-        """
-        returns a dictionary with mapping of entity tags(e1,e2), the named entities, the relation they hold 
-        and direction of relation
-        """
-        
-        entity_relations = []
-        for i in range(n):
-            er = {'entities': {}, 'relation': ()}
-            for t in tag:
-                er['entities'] = {**er['entities'], t: {'entity_name': ce[i][t], 'entity_type': cr[i][t]}}
-            er['relation'] = cr[i]['edge']
-            entity_relations.append(er)
-            
-        return entity_relations     
-        
-    def read(self, filename):
-        """
-        reads the corpus to represent information in a convenient fashion
-        """
-        
+    def extract_relations(self,labels):
+
+        for label in labels:
+            label = label.split("\n")[0]
+            entity_labels = label.split("(")[0]
+            self.relationships.append(entity_labels.split(":"))
+            if label == 'Other':
+                self.edge.append("NA")
+            else:
+                self.edge.append(label[label.index("("):])
+
+        return True
+
+    def extract_text(self,sentences):
+
+        for sentence in sentences:
+            results = re.findall(r'<(\w+)>(.*)</\1>', sentence)
+            sentence = re.sub(r'<\w+>', "", sentence)
+            sentence = re.sub(r'</\w+>', "", sentence)
+            sentence = re.sub(r'"', "", sentence)
+            sentence = re.sub(r'\n', "", sentence)
+            self.text_data.append(sentence)
+            r = list()
+            for res in results:
+                r.append((res[1].strip()))
+            self.entities.append(r)
+
+        return True
+
+    def read(self,filename):
+
+        labels = list()
+        sentences = list()
         with open(filename, 'r') as file:
             file.seek(0)
             for lines in file.readlines():
-                
-                if lines != '\n':
-                    line = lines.split("\t")
-                    if len(line) >= 2:
-                        sentence = line[1].split('"')[1]
-                        (ce, self.tags) = self.capture_entities(sentence)
-                        self.entities.append(ce)
-                        for tag1 in self.tags:
-                            self.entityList[tag1].append(ce[tag1])
+                if lines == '\n':
+                    pass
+                elif lines == 'Other\n':
+                    labels.append(lines)
+                elif re.fullmatch(r'\w+(\W*\w+)?-\w+(\W*\w+)?\(\w+,\w+\)\s?', lines):
+                    labels.append(lines)
+                elif re.search(r'".*"', lines) is not None:
+                    if re.search(r'<e[12]>|</e[12]>', lines) is not None:
+                        sentence = lines.split("\t")[1]
+                        sentences.append(sentence)
                     else:
-                        label = line[0].split("\n")
-                        cr = self.capture_relations(label[0], self.tags)
-                        self.relations.append(cr)
-                        for tag in self.tags:
-                            self.entityTypeList[tag].append(cr[tag])
-                    
-        self.entity_relationships = self.map_entity_relations(self.entities, self.relations,
-                                                              self.tags, len(self.entities))
-    
-        return True
+                        pass
+                else:
+                    pass
 
-    def get_data(self):
-        
-        for i in range(len(self.text)):
-            self.data.append((self.text[i], (self.entities[i][self.tags[0]], self.entities[i][self.tags[1]]),
-                              (self.relations[i][self.tags[0]], self.relations[i][self.tags[1]]),
-                              self.relations[i]['edge']))
+        self.extract_text(sentences)
+        self.extract_relations(labels)
+        self.parsed_data = pd.DataFrame(data = {'text': self.text_data,'entities': self.entities,'relations': self.relationships,'edges':self.edge},columns =['text','entities','relations','edges'])
 
-        return self.data
+        return self.parsed_data
 
     @staticmethod
     def read_sentence(line):
