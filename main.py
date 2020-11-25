@@ -30,6 +30,9 @@ if __name__ == '__main__':
     dependency_parse = []
     sentence = []
     synsets = []
+
+    print(len(df))
+
     for i in range(len(df)):
         featureExtractor = FeatureExtractor(df.iloc[i]['text'], df.iloc[i]['entities'])
         sentence.append(featureExtractor.sentence)
@@ -40,8 +43,14 @@ if __name__ == '__main__':
         dependency_parse.append(featureExtractor.parse_tree)
         synsets.append(featureExtractor.both_synsets)
 
-    processed_data = pd.DataFrame({'text': sentence,'tokens': tokens, 'lemmas': lemmas,
+    print(len(tokens))
+    print(len(lemmas))
+    print(len(pos_tags))
+    print(len(entity_labels))
+    print(len(dependency_parse))
+    print(len(sentence))
+    print(len(synsets))
+    processed_data = pd.DataFrame({'text': sentence,'entities': df['entities'],'relations': df['relations'],'tokens': tokens, 'lemmas': lemmas,
                                    'pos_tags': pos_tags, 'ner_tags': entity_labels, 'parse_tree': dependency_parse, 'synsets': synsets})
-
-    df = df.merge(processed_data)
-    df.to_csv("task2.csv")
+    print(processed_data.shape)
+    processed_data.to_csv("task2.csv")

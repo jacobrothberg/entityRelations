@@ -1,4 +1,4 @@
-## meaningless comment 1
+# meaningless comment 1
 import spacy
 from nltk import pos_tag
 from nltk import word_tokenize
@@ -49,11 +49,9 @@ class FeatureExtractor:
 
         self.pos_tags = pos_tag(self.tokens)
 
-        self.dict_of_synsets = {}
-
         self.synset_dict = dict()
         for token in self.tokens:
-            self.synset_dict = {**self.synset_dict, token : wn.synsets(token)}
+            self.synset_dict = {**self.synset_dict, token: wn.synsets(token)}
 
         self.entity_labels = dict()
         doc = nlp(self.sentence)
@@ -66,7 +64,7 @@ class FeatureExtractor:
                 elif ent.text in states_list:
                     self.entity_labels = {**self.entity_labels, ent.text: "State"}
                 else:
-                    self.entity_labels = {**self.entity_labels, ent.text : ent.label_}
+                    self.entity_labels = {**self.entity_labels, ent.text: ent.label_}
             else:
                 self.entity_labels = {**self.entity_labels, ent.text: ent.label_}
 
