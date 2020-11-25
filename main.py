@@ -30,11 +30,11 @@ if __name__ == '__main__':
     dependency_parse = []
     sentence = []
     synsets = []
-
-    print(len(df))
+    ancestors = []
+    deps = []
 
     for i in range(len(df)):
-        featureExtractor = FeatureExtractor(df.iloc[i]['text'], df.iloc[i]['entities'])
+        featureExtractor = FeatureExtractor(df.iloc[i]['text'], df.iloc[i]['entity_indices'], df.iloc[i]['entities'])
         sentence.append(featureExtractor.sentence)
         tokens.append(featureExtractor.tokens)
         lemmas.append(featureExtractor.lemmas)
@@ -42,15 +42,9 @@ if __name__ == '__main__':
         entity_labels.append(featureExtractor.entity_labels)
         dependency_parse.append(featureExtractor.parse_tree)
         synsets.append(featureExtractor.both_synsets)
+        ancestors.append(featureExtractor.ancestors)
+        deps.append(featureExtractor.deps)
 
-    print(len(tokens))
-    print(len(lemmas))
-    print(len(pos_tags))
-    print(len(entity_labels))
-    print(len(dependency_parse))
-    print(len(sentence))
-    print(len(synsets))
-    processed_data = pd.DataFrame({'text': sentence,'entities': df['entities'],'relations': df['relations'],'tokens': tokens, 'lemmas': lemmas,
-                                   'pos_tags': pos_tags, 'ner_tags': entity_labels, 'parse_tree': dependency_parse, 'synsets': synsets})
-    print(processed_data.shape)
+    processed_data = pd.DataFrame({'text': sentence,'entities': df['entities'],'relations': df['relations'], 'tokens': tokens, 'lemmas': lemmas,
+                                   'pos_tags': pos_tags, 'ner_tags': entity_labels, 'parse_tree': dependency_parse, 'synsets': synsets, 'ancestors': ancestors, 'deps': deps})
     processed_data.to_csv("task2.csv")

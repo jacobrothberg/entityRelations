@@ -25,6 +25,9 @@ class CorpusReader:
         # stores the list of e1 and e2 separately
         self.entities = list()
 
+        # store the indices of e1 and e2
+        self.entity_indices = list()
+
         # stores a list of dictionaries which captures the entities, types and the relation(directionality)
         self.relationships = list()
         
@@ -52,20 +55,35 @@ class CorpusReader:
     def extract_text(self,sentences):
 
         for sentence in sentences:
+            sentence = re.split('\t|\n', sentence)[0].replace('\"', "").replace(".", "").replace(",", "") \
+                .replace("?", "").replace("!", "").replace(")", "").replace("(", "").replace("\'s", "") \
+                .replace("\'ve", "").replace("\'t", "").replace("\'re", "").replace("\'d", "") \
+                .replace("\'ll", "").replace("'", "").replace(";", "").replace(":", "")
+            words = sentence.split()
+            for word in words:
+                if "</e1>" in word:
+                    entity1 = word
+                if "</e2>" in word:
+                    entity2 = word
+
+            pos1 = words.index(entity1)
+            pos2 = words.index(entity2)
+
+            self.entity_indices.append((pos1, pos2))
+
             results = re.findall(r'<(\w+)>(.*)</\1>', sentence)
             sentence = re.sub(r'<\w+>', "", sentence)
             sentence = re.sub(r'</\w+>', "", sentence)
-            sentence = re.sub(r'"', "", sentence)
-            sentence = re.sub(r'\n', "", sentence)
+
             self.text_data.append(sentence)
             r = list()
             for res in results:
-                r.append((res[1].strip()))
+                word = res[1].strip()
+                r.append(word)
             self.entities.append(r)
-
         return True
 
-    def read(self,filename):
+    def read(self, filename):
 
         labels = list()
         sentences = list()
@@ -89,7 +107,9 @@ class CorpusReader:
 
         self.extract_text(sentences)
         self.extract_relations(labels)
-        self.parsed_data = pd.DataFrame(data = {'text': self.text_data,'entities': self.entities,'relations': self.relationships,'edges':self.edge},columns =['text','entities','relations','edges'])
+        self.parsed_data = pd.DataFrame(data={'text': self.text_data, 'entity_indices': self.entity_indices, 'entities': self.entities,
+                                                'relations': self.relationships, 'edges': self.edge},
+                                        columns=['text', 'entity_indices', 'entities', 'relations', 'edges'])
 
         return self.parsed_data
 

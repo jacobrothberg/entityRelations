@@ -37,7 +37,7 @@ states_list = [*extract_gpe_type(states, 'name')]
 
 class FeatureExtractor:
 
-    def __init__(self, sentence, entities):
+    def __init__(self, sentence, entity_indices, entities):
 
         self.sentence = sentence
 
@@ -67,6 +67,24 @@ class FeatureExtractor:
                     self.entity_labels = {**self.entity_labels, ent.text: ent.label_}
             else:
                 self.entity_labels = {**self.entity_labels, ent.text: ent.label_}
+
+        both_ancestors = []
+        both_dep = ""
+        for pos, token in enumerate(doc):
+            if pos in entity_indices:
+                ancestors = [i.text for i in token.ancestors]
+                both_ancestors.append(ancestors)
+                both_dep += token.dep_
+
+        e1_is_ancestor_e2 = 0
+        e2_is_ancestor_e1 = 0
+        if entities[0] in both_ancestors[1]:
+            e1_is_ancestor_e2 = 1
+        elif entities[1] in both_ancestors[0]:
+            e2_is_ancestor_e1 = 1
+
+        self.ancestors = ((e1_is_ancestor_e2, e2_is_ancestor_e1))
+        self.deps = both_dep
 
         for chunk in doc.noun_chunks:
             self.parse_tree = (chunk.text, chunk.root.text, chunk.root.dep_, chunk.root.head.text)
