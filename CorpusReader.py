@@ -37,12 +37,15 @@ class CorpusReader:
         # stores the direction of edges
         self.edge = list()
 
+        self.labels = list()
+
         self.parsed_data = pd.DataFrame()
 
     def extract_relations(self,labels):
 
         for label in labels:
             label = label.split("\n")[0]
+            self.labels.append(label)
             entity_labels = label.split("(")[0]
             self.relationships.append(entity_labels.split(":"))
             if label == 'Other':
@@ -107,9 +110,9 @@ class CorpusReader:
 
         self.extract_text(sentences)
         self.extract_relations(labels)
-        self.parsed_data = pd.DataFrame(data={'text': self.text_data, 'entity_indices': self.entity_indices, 'entities': self.entities,
+        self.parsed_data = pd.DataFrame(data={'text': self.text_data, 'entity_indices': self.entity_indices, 'entities': self.entities,'labels':self.labels,
                                                 'relations': self.relationships, 'edges': self.edge},
-                                        columns=['text', 'entity_indices', 'entities', 'relations', 'edges'])
+                                        columns=['text', 'entity_indices', 'entities','labels','relations', 'edges'])
 
         return self.parsed_data
 

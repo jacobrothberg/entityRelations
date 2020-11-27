@@ -6,7 +6,7 @@ from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 import geonamescache
 nlp = spacy.load("en_core_web_sm")
-
+from nltk.util import ngrams
 wnl = WordNetLemmatizer()
 
 gc = geonamescache.GeonamesCache()
@@ -14,7 +14,14 @@ countries = gc.get_countries()
 cities = gc.get_cities()
 states = gc.get_us_states()
 
-
+def ngramToList(ngram):
+    words = []
+    for c in ngram:
+        word = ""
+        for w in c:
+            word += w
+        words.append(word)
+    return words
 def extract_gpe_type(gpe_type, entity):
 
     if isinstance(gpe_type, dict):
@@ -41,11 +48,11 @@ class FeatureExtractor:
 
         self.sentence = sentence
 
-        self.entities = entities
+        self.entities = [wnl.lemmatize(entity, pos = 'v') for entity in entities]
 
         self.tokens = word_tokenize(self.sentence)
 
-        self.lemmas = [wnl.lemmatize(token) for token in self.tokens]
+        self.lemmas = [wnl.lemmatize(token, pos='v') for token in self.tokens]
 
         self.pos_tags = pos_tag(self.tokens)
 
@@ -112,3 +119,15 @@ class FeatureExtractor:
                     for name in holonym.lemma_names():
                         list_holonyms.append(name)
             self.both_synsets[entity] = {'hypernyms': list_hypernyms, 'hyponyms': list_hyponyms, 'meronyms': list_meronyms, 'holonyms': list_holonyms}
+
+            self.features = list()
+            feature = []
+            unigrams = self.tokens
+            feature.extend(unigrams)
+            feature.extend(ngramToList(ngrams(unigrams, 2)))
+            feature.extend(ngramToList(ngrams(unigrams, 2)))
+            feature.extend(ngramToList(ngrams(unigrams, 3)))
+            feature.extend(ngramToList(ngrams(unigrams, 3)))
+            feature.extend(ngramToList(ngrams(unigrams, 3)))
+            feature = ' '.join(feature)
+            self.features.append(feature)
