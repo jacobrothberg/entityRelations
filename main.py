@@ -1,8 +1,10 @@
 from CorpusReader import *
 from FeatureExtractor import *
 import pandas as pd
-
-
+from DataTransform import transform
+from LSTM import train_model
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+import numpy as np
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -16,76 +18,49 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    """
-    corpusReader = CorpusReader()
-    corpusReader.read('semeval_train.txt')
-    data = corpusReader.get_data()
 
-    
-    line = 16016
+    CR_train = CorpusReader()
+    dataset_train = CR_train.read('semeval_train.txt')
+    # df.to_csv('test_dataset.csv')
 
-    print(corpusReader.data[line])
+    featureExtractor_train = FeatureExtractor()
+    new_dataset_train = featureExtractor_train.getFeatures(dataset_train)
 
-    featureExtractor = FeatureExtractor(corpusReader.data[line][0])
+    # new_dataset.to_csv('test_features.csv')
+    CR_test = CorpusReader()
+    dataset_test = CR_test.read('semeval_test.txt')
 
-    print(featureExtractor.tokens)
+    featureExtractor_test = FeatureExtractor()
+    new_dataset_test = featureExtractor_test.getFeatures(dataset_test)
 
-    print(featureExtractor.lemmas)
-
-    print(featureExtractor.pos_tags)
-
-    print(featureExtractor.synset_dict)
-
-    print("Entity labels: ", featureExtractor.entity_labels)
-
-    """
-
-    CR = CorpusReader()
-    df = CR.read('semeval_test.txt')
-    df.to_csv('test_dataset.csv')
-
-
-    """          processed_data = pd.DataFrame({'tokens': self.tokens, 'lemmas': self.lemmas,
-                                       'pos_tags': self.pos_tags, 'ner_tags': self.entity_labels})
-    """
-
-    tokens = []
-    lemmas = []
-    pos_tags = []
-    entity_labels = []
-    dependency_parse = []
-    sentence = []
-    synsets = []
-    ancestors = []
-    deps = []
-    features = []
-    entities = []
-    unique_labels = dict()
     i = 0
-    for label in df['labels']:
-        if label not in unique_labels.keys():
-            unique_labels[label] = i
+    labelMappings = {}
+    for label in dataset_train['labels']:
+        if label not in labelMappings.keys():
+            labelMappings[label] = i
             i += 1
 
+    print(len(labelMappings))
+    print(labelMappings)
 
+    tokenizer,embedding_matrix, max_length, major_dep, word_index, x_text_seq, x_mut_ancestors_list, x_dependency_list_filter, x_label = transform(labelMappings,new_dataset_train,train = True)
+    (_,_,_,_,_,y_text_seq,y_mut_ancestors_list,y_dependency_list_filter,y_label) = transform(labelMappings,new_dataset_test,tokenizer,max_length,major_dep,word_index,train=False)
 
-    for i in range(len(df)):
-        featureExtractor = FeatureExtractor(df.iloc[i]['text'], df.iloc[i]['entity_indices'], df.iloc[i]['entities'])
-        sentence.append(featureExtractor.sentence)
-        tokens.append(featureExtractor.tokens)
-        lemmas.append(featureExtractor.lemmas)
-        pos_tags.append(featureExtractor.pos_tags)
-        entity_labels.append(featureExtractor.entity_labels)
-        dependency_parse.append(featureExtractor.parse_tree)
-        synsets.append(featureExtractor.both_synsets)
-        ancestors.append(featureExtractor.ancestors)
-        deps.append(featureExtractor.deps)
-        entities.append(featureExtractor.entities)
-        features.append(featureExtractor.features)
+    print("X: ", x_text_seq.shape,x_mut_ancestors_list.shape,x_dependency_list_filter.shape,x_label.shape)
+    print("Y: ", y_text_seq.shape, y_mut_ancestors_list.shape, y_dependency_list_filter.shape, y_label.shape)
 
-    processed_data = pd.DataFrame({'text': sentence,'entities': entities,'relations': df['relations'], 'tokens': tokens, 'lemmas': lemmas,
-                                      'pos_tags': pos_tags, 'ner_tags': entity_labels, 'parse_tree': dependency_parse, 'synsets': synsets, 'ancestors': ancestors, 'deps': deps,'features':features})
-    processed_data.to_csv("task2_test.csv")
-
-    # print(unique_labels)
-    # print(len(unique_labels))
+    model, history = train_model(x_text_seq, x_mut_ancestors_list,
+                                  x_dependency_list_filter, x_label,
+                                  y_text_seq, y_mut_ancestors_list,
+                                  y_dependency_list_filter, y_label,
+                                  embedding_matrix,
+                                  max_length,
+                                  len(word_index) + 1)
+    model.save('LSTM')
+    prediction = model.predict(
+        [y_text_seq,y_mut_ancestors_list,y_dependency_list_filter],
+        batch_size=1000)
+    class_pred = np.argmax(prediction, axis=1)
+    class_true = np.argmax(y_label, axis=1)
+    conf = confusion_matrix(class_true, class_pred)
+    precision_recall_fscore = precision_recall_fscore_support(class_true, class_pred, average='macro')

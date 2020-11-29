@@ -26,7 +26,9 @@ class CorpusReader:
         self.entities = list()
 
         # store the indices of e1 and e2
-        self.entity_indices = list()
+        self.entity1_index = list()
+
+        self.entity2_index = list()
 
         # stores a list of dictionaries which captures the entities, types and the relation(directionality)
         self.relationships = list()
@@ -72,7 +74,8 @@ class CorpusReader:
             pos1 = words.index(entity1)
             pos2 = words.index(entity2)
 
-            self.entity_indices.append((pos1, pos2))
+            self.entity1_index.append(pos1)
+            self.entity2_index.append(pos2)
 
             results = re.findall(r'<(\w+)>(.*)</\1>', sentence)
             sentence = re.sub(r'<\w+>', "", sentence)
@@ -110,9 +113,10 @@ class CorpusReader:
 
         self.extract_text(sentences)
         self.extract_relations(labels)
-        self.parsed_data = pd.DataFrame(data={'text': self.text_data, 'entity_indices': self.entity_indices, 'entities': self.entities,'labels':self.labels,
-                                                'relations': self.relationships, 'edges': self.edge},
-                                        columns=['text', 'entity_indices', 'entities','labels','relations', 'edges'])
+        self.parsed_data = pd.DataFrame(data={'text': self.text_data, 'entity1_index': self.entity1_index,
+                                              'entity2_index':self.entity2_index, 'entities': self.entities,
+                                              'labels': self.labels,'relations': self.relationships, 'edges': self.edge},
+                                        columns=['text', 'entity1_index','entity2_index', 'entities','labels','relations', 'edges'])
 
         return self.parsed_data
 

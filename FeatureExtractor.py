@@ -1,134 +1,182 @@
-# meaningless comment 1
-#meaning less comment 2
 import spacy
 from nltk import pos_tag
 from nltk import word_tokenize
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
-import geonamescache
-nlp = spacy.load("en_core_web_sm")
-from nltk.util import ngrams
+import pandas as pd
 wnl = WordNetLemmatizer()
 
-gc = geonamescache.GeonamesCache()
-countries = gc.get_countries()
-cities = gc.get_cities()
-states = gc.get_us_states()
-
-def ngramToList(ngram):
-    words = []
-    for c in ngram:
-        word = ""
-        for w in c:
-            word += w
-        words.append(word)
-    return words
-def extract_gpe_type(gpe_type, entity):
-
-    if isinstance(gpe_type, dict):
-        for key, value in gpe_type.items():
-            if key == entity:
-                yield value
-
-            if isinstance(value, (dict, list)):
-                yield from extract_gpe_type(value, entity)
-
-    elif isinstance(gpe_type, list):
-        for gpe in gpe_type:
-            yield from extract_gpe_type(gpe, entity)
-
-
-cities_list = [*extract_gpe_type(cities, 'name')]
-countries_list = [*extract_gpe_type(countries, 'name')]
-states_list = [*extract_gpe_type(states, 'name')]
+nlp = spacy.load("en_core_web_sm")
 
 
 class FeatureExtractor:
+    def __init__(self):
 
-    def __init__(self, sentence, entity_indices, entities):
+        self.entities = list()
 
-        self.sentence = sentence
+        self.tokens = list()
 
-        self.entities = [wnl.lemmatize(entity, pos = 'v') for entity in entities]
+        self.lemmas = list()
 
-        self.tokens = word_tokenize(self.sentence)
+        self.pos_tags = list()
 
-        self.lemmas = [wnl.lemmatize(token, pos='v') for token in self.tokens]
+        self.synset_list = list()
 
-        self.pos_tags = pos_tag(self.tokens)
+        self.ner_tags = list()
 
-        self.synset_dict = dict()
-        for token in self.tokens:
-            self.synset_dict = {**self.synset_dict, token: wn.synsets(token)}
+        self.ancestor_a = list()
 
-        self.entity_labels = dict()
-        doc = nlp(self.sentence)
-        for ent in doc.ents:
-            if ent.label_ == 'GPE':
-                if ent.text in countries_list:
-                    self.entity_labels = {**self.entity_labels, ent.text: "Country"}
-                elif ent.text in cities_list:
-                    self.entity_labels = {**self.entity_labels, ent.text: "City"}
-                elif ent.text in states_list:
-                    self.entity_labels = {**self.entity_labels, ent.text: "State"}
-                else:
-                    self.entity_labels = {**self.entity_labels, ent.text: ent.label_}
-            else:
-                self.entity_labels = {**self.entity_labels, ent.text: ent.label_}
+        self.ancestor_b = list()
 
-        both_ancestors = []
-        both_dep = ""
-        for pos, token in enumerate(doc):
-            if pos in entity_indices:
-                ancestors = [i.text for i in token.ancestors]
-                both_ancestors.append(ancestors)
-                both_dep += token.dep_
+        self.parse_tree = list()
 
-        e1_is_ancestor_e2 = 0
-        e2_is_ancestor_e1 = 0
-        if entities[0] in both_ancestors[1]:
-            e1_is_ancestor_e2 = 1
-        elif entities[1] in both_ancestors[0]:
-            e2_is_ancestor_e1 = 1
+        self.dependents = list()
 
-        self.ancestors = ((e1_is_ancestor_e2, e2_is_ancestor_e1))
-        self.deps = both_dep
+        self.both_synsets = list()
 
-        for chunk in doc.noun_chunks:
-            self.parse_tree = (chunk.text, chunk.root.text, chunk.root.dep_, chunk.root.head.text)
+    def Entities(self, entities):
 
-        self.both_synsets = {}
 
-        for entity in self.entities:
-            synsets = wn.synsets(entity)
-            list_hypernyms = []
-            list_hyponyms = []
-            list_meronyms = []
-            list_holonyms = []
+        for entity in entities:
+            ent = [wnl.lemmatize(x, pos='v') for x in entity]
+            self.entities.append(ent)
 
-            for synset in synsets:
-                for hypernym in synset.hypernyms():
-                    for name in hypernym.lemma_names():
-                        list_hypernyms.append(name)
-                for hyponym in synset.hyponyms():
-                    for name in hyponym.lemma_names():
-                        list_hyponyms.append(name)
-                for meronym in synset.member_meronyms():
-                    for name in meronym.lemma_names():
-                        list_meronyms.append(name)
-                for holonym in synset.member_holonyms():
-                    for name in holonym.lemma_names():
-                        list_holonyms.append(name)
-            self.both_synsets[entity] = {'hypernyms': list_hypernyms, 'hyponyms': list_hyponyms, 'meronyms': list_meronyms, 'holonyms': list_holonyms}
+        # print("entities: ",len(self.entities))
+        return True
 
-            self.features = list()
-            feature = []
-            unigrams = self.tokens
-            feature.extend(unigrams)
-            feature.extend(ngramToList(ngrams(unigrams, 2)))
-            feature.extend(ngramToList(ngrams(unigrams, 2)))
-            feature.extend(ngramToList(ngrams(unigrams, 3)))
-            feature.extend(ngramToList(ngrams(unigrams, 3)))
-            feature.extend(ngramToList(ngrams(unigrams, 3)))
-            feature = ' '.join(feature)
-            self.features.append(feature)
+    def Tokenize(self, texts):
+
+        for text in texts:
+            self.tokens.append(word_tokenize(text))
+
+        # print("tokens: ",len(self.tokens))
+        return True
+
+    def Lemmatize(self, tokens):
+
+        for token in tokens:
+            lemma = [wnl.lemmatize(x, pos='v') for x in token]
+            self.lemmas.append(lemma)
+
+        # print("lemmas: ",len(self.lemmas))
+        return True
+
+    def PosTags(self, tokens):
+
+        for token in tokens:
+            self.pos_tags.append(pos_tag(token))
+
+        # print("pos_tags: ",len(self.pos_tags))
+        return True
+
+    def Synsets(self, tokens):
+
+        for token in tokens:
+            synset = {}
+            for t in token:
+                synset = {**synset, t: wn.synsets(t)}
+            self.synset_list.append(synset)
+
+        # print("synsets: ",len(self.synset_list))
+        return True
+
+    def nltkFeatures(self, texts, entity1_indices,entity2_indices, entities):
+
+        for (text, ent1_index,ent2_index, entity) in zip(texts, entity1_indices,entity2_indices, entities):
+            doc = nlp(text)
+            entity_labels = {}
+            for ent in doc.ents:
+                entity_labels = {**entity_labels, ent.text: ent.label_}
+            self.ner_tags.append(entity_labels)
+
+
+            both_ancestors = []
+            both_dep = ""
+            for pos, token in enumerate(doc):
+                if pos == ent1_index or pos == ent2_index:
+                    anc = [i.text for i in token.ancestors]
+                    both_ancestors.append(anc)
+                    both_dep += token.dep_
+            self.dependents.append(both_dep)
+
+            e1_is_ancestor_e2 = 0
+            e2_is_ancestor_e1 = 0
+
+            if entity[0] in both_ancestors[1]:
+                e1_is_ancestor_e2 = 1
+            elif entity[1] in both_ancestors[0]:
+                e2_is_ancestor_e1 = 1
+
+            self.ancestor_a.append(e1_is_ancestor_e2)
+            self.ancestor_b.append(e2_is_ancestor_e1)
+
+
+            tree = list()
+            for chunk in doc.noun_chunks:
+                tree.append((chunk.text, chunk.root.text, chunk.root.dep_, chunk.root.head.text))
+            self.parse_tree.append(tree)
+
+        # print("ner_tags: ",len(self.ner_tags))
+        # print("ancestors: ",len(self.ancestor_a), len(self.ancestor_b))
+        # print("dependents: ",len(self.dependents))
+        # print("parse_tree: ",len(self.parse_tree))
+        return True
+
+    def wordnetFeatures(self):
+
+        for i in range(len(self.entities)):
+            entity = self.entities[i]
+            for ent in entity:
+                synsets = wn.synsets(ent)
+                list_hypernyms = []
+                list_hyponyms = []
+                list_meronyms = []
+                list_holonyms = []
+                synset_dict = {}
+                for synset in synsets:
+                    for hypernym in synset.hypernyms():
+                        for name in hypernym.lemma_names():
+                            list_hypernyms.append(name)
+                    for hyponym in synset.hyponyms():
+                        for name in hyponym.lemma_names():
+                            list_hyponyms.append(name)
+                    for meronym in synset.member_meronyms():
+                        for name in meronym.lemma_names():
+                            list_meronyms.append(name)
+                    for holonym in synset.member_holonyms():
+                        for name in holonym.lemma_names():
+                            list_holonyms.append(name)
+
+                synset_dict[ent] = {'hypernyms': list_hypernyms, 'hyponyms': list_hyponyms, 'meronyms': list_meronyms,
+                                    'holonyms': list_holonyms}
+
+            self.both_synsets.append(synset_dict)
+
+        # print("both synsets: ",len(self.both_synsets))
+        return True
+
+    def getFeatures(self, df):
+
+        self.Entities(df['entities'])
+        self.Tokenize(df['text'])
+        self.Lemmatize(self.tokens)
+        self.PosTags(self.tokens)
+        self.Synsets(self.tokens)
+        self.nltkFeatures(df['text'], df['entity1_index'],df['entity2_index'], df['entities'])
+        self.wordnetFeatures()
+
+
+        features = pd.DataFrame(
+            data={'text': df['text'], 'entity1_index': df['entity1_index'],'entity2_index': df['entity2_index'], 'entities': self.entities,
+                  'labels': df['labels'],
+                  'tokens': self.tokens, 'lemmas': self.lemmas, 'pos_tags': self.pos_tags, 'ner_tags': self.ner_tags,
+                  'ancestor_a': self.ancestor_a,'ancestor_b': self.ancestor_b,
+                  'parse_tree': self.parse_tree, 'dependents': self.dependents, 'both_synsets': self.both_synsets},
+            columns=['text', 'entity1_index','entity2_index', 'entities', 'labels', 'tokens', 'lemmas', 'pos_tags', 'ner_tags',
+                     'ancestor_a','ancestor_b', 'parse_tree', 'dependents', 'both_synsets'])
+
+        # features['entity_indices'] = features['entity_indices'].astype(('int64','int64'))
+        return features
+
+
+
