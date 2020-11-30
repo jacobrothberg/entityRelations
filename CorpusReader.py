@@ -12,7 +12,7 @@ mapping = corpusReader.get_entity_relationship()
 
 import re
 import pandas as pd
-from ModifiedDictionary import ModifiedDictionary
+
 
 
 class CorpusReader:
