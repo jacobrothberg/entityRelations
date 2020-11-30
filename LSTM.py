@@ -1,16 +1,10 @@
-import pandas as pd
-import re
-import sys
-import numpy as np
-from keras.preprocessing import sequence
-from keras.preprocessing.text import Tokenizer
+
 from keras.callbacks import ModelCheckpoint
 from keras.models import Model
 from keras.callbacks import History
+from keras.layers import concatenate
 from keras.utils.generic_utils import get_custom_objects
-from keras.layers import Embedding, Input,BatchNormalization, Dense, Bidirectional,LSTM,Dropout,Activation, concatenate
-from keras.utils.generic_utils import get_custom_objects
-from keras.layers import Embedding, Input,InputLayer,BatchNormalization, Dense, Bidirectional,LSTM,Dropout,GRU,Activation
+from keras.layers import Embedding, Input, BatchNormalization, Dense, Bidirectional, LSTM, Dropout, Activation
 from keras.backend import sigmoid
 
 def swish(x):
