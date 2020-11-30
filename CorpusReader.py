@@ -1,15 +1,3 @@
-"""
-Usage :
-from CorpusReader import *
-corpusReader = CorpusReader()
-corpusReader.read('semeval_train.txt')
-
-training_data = corpusReader.get_data()
-tags = corpusReader.get_tags()
-mapping = corpusReader.get_entity_relationship()
-
-"""
-
 import re
 import pandas as pd
 
@@ -22,21 +10,17 @@ class CorpusReader:
         """
         Initialize variable to hold processed data
         """
-        # stores the list of e1 and e2 separately
+
         self.entities = list()
 
-        # store the indices of e1 and e2
         self.entity1_index = list()
 
         self.entity2_index = list()
 
-        # stores a list of dictionaries which captures the entities, types and the relation(directionality)
         self.relationships = list()
-        
-        # stores the extracted text data (X)
+
         self.text_data = list()
-        
-        # stores the direction of edges
+
         self.edge = list()
 
         self.labels = list()

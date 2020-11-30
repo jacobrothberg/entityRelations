@@ -33,7 +33,7 @@ def train_model(x_train, ancestor_train, dep_train, y_train,
                                kernel_initializer='he_uniform'))(lstm1)
     bn = BatchNormalization()(lstm2)
 
-    # other feature inputs
+
     ancestor_input = Input(shape=(2,))
     ancestor_feature = Dense(64, activation=swish)(ancestor_input)
 

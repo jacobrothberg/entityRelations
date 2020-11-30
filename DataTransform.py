@@ -1,8 +1,7 @@
 import numpy as np
-# from ast import literal_eval as make_tuple
 from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer
-from sklearn.preprocessing import LabelBinarizer
+
 
 
 
