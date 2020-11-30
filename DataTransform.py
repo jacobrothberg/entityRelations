@@ -4,12 +4,7 @@ from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer
 from sklearn.preprocessing import LabelBinarizer
 
-def dense_to_one_hot(labels_dense, num_classes):
-    num_labels = labels_dense.shape[0]
-    index_offset = np.arange(num_labels) * num_classes
-    labels_one_hot = np.zeros((num_labels, num_classes))
-    labels_one_hot.flat[index_offset + labels_dense.ravel()] = 1
-    return labels_one_hot
+
 
 def loadGloveModel(File):
     print("Loading Glove Model")
@@ -40,7 +35,6 @@ def transform(labelMappings, df, tokenizer=None, max_length=0, major_dep=None, w
         mut_b = int(df.iloc[i]['ancestor_b'])
         mut_ancestors_list.append((mut_a,mut_b))
 
-    dependency_list = df['dependents']
 
     if (train):
         tokenizer = Tokenizer(num_words=25000, lower=True, split=' ', char_level=False)
@@ -52,9 +46,6 @@ def transform(labelMappings, df, tokenizer=None, max_length=0, major_dep=None, w
 
         text_seq = sequence.pad_sequences(sentence_seq, maxlen=max_length)
 
-        a, b = np.unique(dependency_list, return_counts=True)
-        a_sorted = a[np.argsort(b)[::-1]]
-        major_dep = a_sorted[:33]
 
     else:
         sentence_seq = tokenizer.texts_to_sequences(text)
@@ -67,18 +58,5 @@ def transform(labelMappings, df, tokenizer=None, max_length=0, major_dep=None, w
         if word in w2vModel.keys():
             embedding_matrix[i] = w2vModel[word]
 
-    dependency_list_filter = []
-    for dep in dependency_list:
-        if dep in major_dep:
-            dependency_list_filter.append(dep)
-        else:
-            dependency_list_filter.append("other")
 
-    lb = LabelBinarizer()
-    dependency_list_filter = lb.fit_transform(dependency_list_filter)
-
-
-    label = [labelMappings[ele] for ele in df['labels']]
-    label = dense_to_one_hot(np.array(label), num_classes)
-
-    return tokenizer,embedding_matrix, max_length, major_dep, word_index, np.asarray(text_seq), np.asarray(mut_ancestors_list), np.asarray(dependency_list_filter), np.asarray(label)
+    return tokenizer,embedding_matrix, max_length, major_dep, word_index, np.asarray(text_seq), np.asarray(mut_ancestors_list)

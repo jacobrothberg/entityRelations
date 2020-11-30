@@ -5,6 +5,7 @@ from DataTransform import transform
 from LSTM import train_model
 from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 import numpy as np
+from utils import *
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -49,9 +50,30 @@ if __name__ == '__main__':
                     15: ('Entity-Origin','(e1,e2)'),16: ('Entity-Origin','(e2,e1)'),17: ('Component-Whole','(e1,e2)'),
                     18: ('Component-Whole','(e2,e1)')}
 
+    label_train = [labelMappings[ele] for ele in dataset_train['labels']]
+    label_train = dense_to_one_hot(np.array(label_train), len(labelMappings))
+    x_label = np.asarray(label_train)
 
-    tokenizer,embedding_matrix, max_length, major_dep, word_index, x_text_seq, x_mut_ancestors_list, x_dependency_list_filter, x_label = transform(labelMappings,new_dataset_train,train = True)
-    (_,_,_,_,_,y_text_seq,y_mut_ancestors_list,y_dependency_list_filter,y_label) = transform(labelMappings,new_dataset_test,tokenizer,max_length,major_dep,word_index,train=False)
+    label_test = [labelMappings[ele] for ele in dataset_test['labels']]
+    label_test = dense_to_one_hot(np.array(label_test), len(labelMappings))
+    y_label = np.asarray(label_test)
+
+    dependency_list = new_dataset_train['dependents']
+    a, b = np.unique(dependency_list, return_counts=True)
+    a_sorted = a[np.argsort(b)[::-1]]
+    major_dep = a_sorted[:33]
+    major_deps = {}
+    i = 0
+    for j in range(33):
+        major_deps[major_dep[j]] = i
+        i += 1
+
+    train_dependency_list = new_dataset_train['dependents']
+    test_dependency_list = new_dataset_test['dependents']
+    x_dependency_list_filter = dependency_encoder(major_deps,train_dependency_list)
+    y_dependency_list_filter = dependency_encoder(major_deps,test_dependency_list)
+    tokenizer,embedding_matrix, max_length, major_dep, word_index, x_text_seq, x_mut_ancestors_list = transform(labelMappings,new_dataset_train,train = True)
+    (_,_,_,_,_,y_text_seq,y_mut_ancestors_list) = transform(labelMappings,new_dataset_test,tokenizer,max_length,major_dep,word_index,train=False)
 
 
 

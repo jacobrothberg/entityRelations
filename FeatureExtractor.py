@@ -168,11 +168,10 @@ class FeatureExtractor:
 
         features = pd.DataFrame(
             data={'text': df['text'], 'entity1_index': df['entity1_index'],'entity2_index': df['entity2_index'], 'entities': self.entities,
-                  'labels': df['labels'],
                   'tokens': self.tokens, 'lemmas': self.lemmas, 'pos_tags': self.pos_tags, 'ner_tags': self.ner_tags,
                   'ancestor_a': self.ancestor_a,'ancestor_b': self.ancestor_b,
                   'parse_tree': self.parse_tree, 'dependents': self.dependents, 'both_synsets': self.both_synsets},
-            columns=['text', 'entity1_index','entity2_index', 'entities', 'labels', 'tokens', 'lemmas', 'pos_tags', 'ner_tags',
+            columns=['text', 'entity1_index','entity2_index', 'entities', 'tokens', 'lemmas', 'pos_tags', 'ner_tags',
                      'ancestor_a','ancestor_b', 'parse_tree', 'dependents', 'both_synsets'])
 
         # features['entity_indices'] = features['entity_indices'].astype(('int64','int64'))
